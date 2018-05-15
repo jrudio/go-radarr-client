@@ -1,0 +1,1 @@
+This cli app helps test the radarr library
