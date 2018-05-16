@@ -58,6 +58,8 @@ func (c Client) Search(title string) ([]SearchResults, error) {
 		return []SearchResults{}, err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		return []SearchResults{}, errors.New(resp.Status)
 	}
