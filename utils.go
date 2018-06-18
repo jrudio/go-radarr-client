@@ -9,12 +9,26 @@ import (
 
 // utils.go holds network utils and function helpers
 
-func (c Client) get(query string) (*http.Response, error) {
+func (c Client) get(query string, params url.Values) (*http.Response, error) {
+	relativeURL, err := url.Parse(query)
+
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	endpointURL := c.URL.ResolveReference(relativeURL)
+
+	if params == nil {
+		params = endpointURL.Query()
+	}
+
+	endpointURL.RawQuery = params.Encode()
+
 	client := http.Client{
 		Timeout: time.Duration(c.Timeout) * time.Second,
 	}
 
-	req, err := http.NewRequest("GET", query, nil)
+	req, err := http.NewRequest("GET", endpointURL.String(), nil)
 
 	if err != nil {
 		return &http.Response{}, err
@@ -27,11 +41,50 @@ func (c Client) get(query string) (*http.Response, error) {
 }
 
 func (c Client) post(query string, body []byte) (*http.Response, error) {
+	relativeURL, err := url.Parse(query)
+
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	endpointURL := c.URL.ResolveReference(relativeURL)
+
 	client := http.Client{
 		Timeout: time.Duration(c.Timeout) * time.Second,
 	}
 
-	req, err := http.NewRequest("POST", query, bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", endpointURL.String(), bytes.NewBuffer(body))
+
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	req.Header.Set("x-api-key", c.APIKey)
+	req.Header.Set("Content-type", "application/json")
+
+	return client.Do(req)
+}
+
+func (c Client) delete(query string, params url.Values) (*http.Response, error) {
+	relativeURL, err := url.Parse(query)
+
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	endpointURL := c.URL.ResolveReference(relativeURL)
+
+	if params == nil {
+		params = endpointURL.Query()
+	}
+
+	endpointURL.RawQuery = params.Encode()
+
+	client := http.Client{
+		Timeout: time.Duration(c.Timeout) * time.Second,
+	}
+
+	req, err := http.NewRequest("DELETE", endpointURL.String(), nil)
 
 	if err != nil {
 		return &http.Response{}, err
