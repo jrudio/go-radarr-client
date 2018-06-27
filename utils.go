@@ -35,7 +35,7 @@ func (c Client) get(query string, params url.Values) (*http.Response, error) {
 	}
 
 	req.Header.Set("x-api-key", c.APIKey)
-	req.Header.Set("Content-type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	return client.Do(req)
 }
@@ -60,7 +60,7 @@ func (c Client) post(query string, body []byte) (*http.Response, error) {
 	}
 
 	req.Header.Set("x-api-key", c.APIKey)
-	req.Header.Set("Content-type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	return client.Do(req)
 }
@@ -91,7 +91,7 @@ func (c Client) delete(query string, params url.Values) (*http.Response, error) 
 	}
 
 	req.Header.Set("x-api-key", c.APIKey)
-	req.Header.Set("Content-type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	return client.Do(req)
 }

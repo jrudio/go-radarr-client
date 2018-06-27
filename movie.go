@@ -147,3 +147,30 @@ func (c Client) DeleteMovie(id string, deleteFiles, addExclusion bool) error {
 
 	return nil
 }
+
+// DiscoverMovies returns a list of recommended movies
+func (c Client) DiscoverMovies() ([]Movie, error) {
+	const endpoint = "/api/movies/discover/recommendations"
+
+	var movies []Movie
+
+	resp, err := c.get(endpoint, nil)
+
+	if err != nil {
+		return movies, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return movies, errors.New(resp.Status)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&movies)
+
+	// does this endpoint always return 29 items?
+	// movieCount := len(movies)
+
+	// fmt.Printf("discover movies count: %d\n", movieCount)
+	return movies, err
+}
