@@ -42,7 +42,7 @@ func (c Client) SearchOffline(title string) (Movie, error) {
 
 // GetMovie returns a movie via the movie database id
 func (c Client) GetMovie(tmdbID int) (Movie, error) {
-	const endpoint = "/api/movies/lookup/tmdb"
+	const endpoint = "/api/movie/lookup/tmdb"
 
 	params := url.Values{}
 
@@ -74,7 +74,7 @@ func (c Client) GetMovie(tmdbID int) (Movie, error) {
 
 // GetMovieIMDB returns a movie via the internet movie database id
 func (c Client) GetMovieIMDB(imdbID int) (Movie, error) {
-	const endpoint = "/api/movies/lookup/imdb"
+	const endpoint = "/api/movie/lookup/imdb"
 
 	params := url.Values{}
 
