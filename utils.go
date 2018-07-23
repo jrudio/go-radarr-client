@@ -2,7 +2,6 @@ package radarr
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -28,8 +27,6 @@ func (c Client) get(query string, params url.Values) (*http.Response, error) {
 	client := http.Client{
 		Timeout: time.Duration(c.Timeout) * time.Second,
 	}
-
-	fmt.Printf("radarr GET request: %s\n", endpointURL)
 
 	req, err := http.NewRequest("GET", endpointURL.String(), nil)
 

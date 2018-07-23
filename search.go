@@ -14,7 +14,7 @@ func (c Client) Search(title string) ([]Movie, error) {
 
 	params.Set("term", title)
 
-	resp, err := c.get("/api/movies/lookup", params)
+	resp, err := c.get("/api/movie/lookup", params)
 
 	if err != nil {
 		return []Movie{}, err
