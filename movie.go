@@ -76,48 +76,68 @@ type Movie struct {
 }
 
 // AddMovie adds a movie to your wanted list
-func (c Client) AddMovie(movie Movie) error {
+func (c Client) AddMovie(movie Movie) []error {
 	const endpoint = "/api/movie"
 
 	// check required fields
 	if movie.Title == "" {
-		return errors.New("title is required")
+		return []error{errors.New("title is required")}
 	}
 
 	if movie.QualityProfileID == 0 {
-		return errors.New("quality profile id needs to be set")
+		return []error{errors.New("quality profile id needs to be set")}
 	}
 
 	if movie.TitleSlug == "" {
-		return errors.New("title slug is required")
+		return []error{errors.New("title slug is required")}
 	}
 
 	if len(movie.Images) == 0 {
-		return errors.New("an array of images is required")
+		return []error{errors.New("an array of images is required")}
 	}
 
 	if movie.TmdbID == 0 {
-		return errors.New("tmdbid is required")
+		return []error{errors.New("tmdbid is required")}
 	}
 
 	if movie.Path == "" && movie.RootFolderPath == "" {
-		return errors.New("either a path or rootFolderPath is required")
+		return []error{errors.New("either a path or rootFolderPath is required")}
 	}
 
 	requestPayload, err := json.Marshal(movie)
 
 	if err != nil {
-		return err
+		return []error{err}
 	}
 
 	resp, err := c.post(endpoint, requestPayload)
 
 	if err != nil {
-		return err
+		return []error{err}
+	}
+
+	defer resp.Body.Close()
+
+	// return the bad request error messages
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode == http.StatusBadRequest {
+		var errMessages []ErrorMessage
+		var errs []error
+
+		// :/ we couldn't decode the error message -- bad struct?
+		if err := json.NewDecoder(resp.Body).Decode(&errMessages); err != nil {
+			return []error{fmt.Errorf("unable to decode error message (bad request): %v", err)}
+		}
+
+		// turn ErrorMessage into Go error
+		for _, err := range errMessages {
+			errs = append(errs, fmt.Errorf(err.Message))
+		}
+
+		return errs
 	}
 
 	if resp.StatusCode != http.StatusCreated {
-		return errors.New(resp.Status)
+		return []error{errors.New(resp.Status)}
 	}
 
 	return nil

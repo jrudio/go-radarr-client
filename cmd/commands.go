@@ -332,8 +332,16 @@ func addMovie(c *cli.Context) error {
 	movie.RootFolderPath = rootFolder
 	movie.Monitored = true
 
-	if err := client.AddMovie(movie); err != nil {
-		return cli.NewExitError(err, 1)
+	if errors := client.AddMovie(movie); errors != nil {
+		output := ""
+
+		for _, err := range errors {
+			output += err.Error() + "\n"
+		}
+
+		fmt.Printf(output)
+
+		return cli.NewExitError(fmt.Errorf(""), 1)
 	}
 
 	fmt.Printf("added %s (%d) successfully\n", movie.Title, movie.Year)

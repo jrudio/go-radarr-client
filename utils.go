@@ -119,3 +119,15 @@ func appendEndpoint(baseURL, endpoint string) string {
 
 	return baseURL + endpoint
 }
+
+// ErrorMessage radarr's error message struct
+type ErrorMessage struct {
+	PropertyName                      string   `json:"propertyName"`
+	Message                           string   `json:"errorMessage"`
+	AttemptedValue                    int      `json:"attemptedValue"`
+	FormattedMessageArguments         []string `json:"formattedMessageArguments"`
+	FormattedMessagePlaceholderValues struct {
+		PropertyName  string `json:"propertyName"`
+		PropertyValue int    `json:"propertyValue"`
+	} `json:"formattedMessagePlaceholderValues"`
+}
