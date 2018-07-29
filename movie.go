@@ -75,6 +75,12 @@ type Movie struct {
 	Website               string   `json:"website"`
 }
 
+// ErrorMovieExists error when trying to add an already added movie
+var ErrorMovieExists = errors.New("This movie has already been added")
+
+// ErrorPathAlreadyConfigured path exists for another movie
+var ErrorPathAlreadyConfigured = errors.New("Path is already configured for another movie")
+
 // AddMovie adds a movie to your wanted list
 func (c Client) AddMovie(movie Movie) []error {
 	const endpoint = "/api/movie"
@@ -130,7 +136,18 @@ func (c Client) AddMovie(movie Movie) []error {
 
 		// turn ErrorMessage into Go error
 		for _, err := range errMessages {
-			errs = append(errs, fmt.Errorf(err.Message))
+			var newErr error
+
+			switch err.Message {
+			case ErrorMovieExists.Error():
+				newErr = ErrorMovieExists
+			case ErrorPathAlreadyConfigured.Error():
+				newErr = ErrorPathAlreadyConfigured
+			default:
+				newErr = fmt.Errorf(err.Message)
+			}
+
+			errs = append(errs, newErr)
 		}
 
 		return errs

@@ -122,12 +122,12 @@ func appendEndpoint(baseURL, endpoint string) string {
 
 // ErrorMessage radarr's error message struct
 type ErrorMessage struct {
-	PropertyName                      string   `json:"propertyName"`
-	Message                           string   `json:"errorMessage"`
-	AttemptedValue                    int      `json:"attemptedValue"`
-	FormattedMessageArguments         []string `json:"formattedMessageArguments"`
+	PropertyName                      string      `json:"propertyName"`
+	Message                           string      `json:"errorMessage"`
+	AttemptedValue                    interface{} `json:"attemptedValue"`
+	FormattedMessageArguments         []string    `json:"formattedMessageArguments"`
 	FormattedMessagePlaceholderValues struct {
-		PropertyName  string `json:"propertyName"`
-		PropertyValue int    `json:"propertyValue"`
+		PropertyName  string      `json:"propertyName"`
+		PropertyValue interface{} `json:"propertyValue"`
 	} `json:"formattedMessagePlaceholderValues"`
 }
