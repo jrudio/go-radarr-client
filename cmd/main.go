@@ -73,6 +73,11 @@ func main() {
 			Usage:  "remove the PID lock file in the case a bug interrupts our app",
 			Action: unlock,
 		},
+		cli.Command{
+			Name:   "library",
+			Usage:  "display all the movies in your radarr library",
+			Action: showLibrary,
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {

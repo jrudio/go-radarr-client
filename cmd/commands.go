@@ -217,6 +217,55 @@ func showMovieInfo(c *cli.Context) error {
 	return nil
 }
 
+func showLibrary(c *cli.Context) error {
+	// fire up store
+	db, err := startDB()
+
+	if err != nil {
+		return cli.NewExitError(err, 1)
+	}
+
+	defer db.Close()
+
+	// grab credentials
+	radarrKey, err := db.getRadarrKey()
+
+	if err != nil {
+		return cli.NewExitError(err, 1)
+	}
+
+	radarrURL, err := db.getRadarrURL()
+
+	if err != nil {
+		return cli.NewExitError(err, 1)
+	}
+
+	// create radarr client to interface with radarr
+	client, err := radarr.New(radarrURL, radarrKey)
+
+	if err != nil {
+		return cli.NewExitError(err, 1)
+	}
+
+	movies, err := client.GetMovies(radarr.GetMovieOptions{})
+
+	if err != nil {
+		return cli.NewExitError(err, 1)
+	}
+
+	for _, movie := range movies {
+		status := "missing"
+
+		if movie.Downloaded {
+			status = "downloaded"
+		}
+
+		fmt.Printf("%s (%d) - %s\n", movie.Title, movie.Year, status)
+	}
+
+	return nil
+}
+
 func addMovie(c *cli.Context) error {
 	tmdbID := c.Args().First()
 

@@ -8,6 +8,41 @@ import (
 	"strconv"
 )
 
+// GetMovieOptions change the params when using GetMovies
+type GetMovieOptions struct {
+	// monitored only
+	// - filterKey = monitored
+	// - filterValue = true
+	// - filterType = equal
+	// missing only
+	// - filterKey = downloaded
+	// - filterValue = false
+	// - filterType = equal
+	// released only
+	// - filterKey = downloaded
+	// - filterValue = false
+	// - filterType = equal
+	// announced only
+	// - filterKey = status
+	// - filterValue = inCinemas
+	// - filterType = equal
+	//
+	// FilterKey can be 'monitored', 'downloaded', or 'status'
+	FilterKey string
+	// FilterValue can be 'false', 'true', or 'inCinemas' depending on FilterKey
+	FilterValue string
+	// FilterType can be 'equal'
+	FilterType string
+	// Page when pagination is on we can skip to a point in our results
+	Page string
+	// PageSize can be any number or '-1' to return everything without pagination
+	PageSize string
+	// SortKey can be 'sortTitle'
+	SortKey string
+	// SortDir can be 'asc' or 'desc'
+	SortDir string
+}
+
 // Search uses Radarr's method of online movie lookup
 func (c Client) Search(title string) ([]Movie, error) {
 	params := url.Values{}
@@ -93,4 +128,76 @@ func (c Client) GetMovieIMDB(imdbID int) (Movie, error) {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	return result, err
+}
+
+// GetMovies returns all movies in radarr and in the wanted list
+func (c Client) GetMovies(options GetMovieOptions) ([]Movie, error) {
+	var movies []Movie
+
+	const endpoint = "/api/movie"
+
+	params := url.Values{}
+
+	if options.Page == "" {
+		options.Page = "1"
+	}
+
+	// return everything in results if not specified
+	if options.PageSize == "" {
+		options.Page = "-1"
+	}
+
+	if options.SortKey == "" {
+		options.Page = "sortTitle"
+	}
+
+	if options.SortDir == "" {
+		options.Page = "asc"
+	}
+
+	params.Set("page", options.Page)
+	params.Set("pageSize", options.PageSize)
+	params.Set("sortKey", options.SortKey)
+	params.Set("sortDir", options.SortDir)
+	params.Set("filterType", options.FilterType)
+
+	if options.FilterKey != "" {
+		params.Set("filterKey", options.FilterKey)
+	}
+
+	if options.FilterValue != "" {
+		params.Set("filterValue", options.FilterValue)
+	}
+
+	if options.FilterType != "" {
+		params.Set("filterType", options.FilterType)
+	}
+
+	resp, err := c.get(endpoint, params)
+
+	if err != nil {
+		return movies, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return movies, errors.New(resp.Status)
+	}
+
+	if options.PageSize == "-1" {
+		if err := json.NewDecoder(resp.Body).Decode(&movies); err != nil {
+			return movies, err
+		}
+	} else {
+		var library Library
+
+		if err := json.NewDecoder(resp.Body).Decode(&library); err != nil {
+			return movies, err
+		}
+
+		movies = library.Records
+	}
+
+	return movies, nil
 }

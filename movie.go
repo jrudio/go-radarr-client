@@ -75,6 +75,16 @@ type Movie struct {
 	Website               string   `json:"website"`
 }
 
+// Library movies in wanted list and recognized by radarr
+type Library struct {
+	Page          int     `json:"page"`
+	PageSize      int     `json:"pageSize"`
+	SortKey       string  `json:"sortKey"`
+	SortDirection string  `json:"sortDirection"`
+	TotalRecords  int     `json:"totalRecords"`
+	Records       []Movie `json:"records"`
+}
+
 // ErrorMovieExists error when trying to add an already added movie
 var ErrorMovieExists = errors.New("This movie has already been added")
 
